@@ -1,12 +1,11 @@
 import React from 'react';
 import classes from './Input.module.scss'
 
-function isInvalid({valid, touched, shoudValidate}) {
-    return !valid && shoudValidate && touched
+function isInvalid({valid, touched, shouldValidate}) {
+    return !valid && shouldValidate && touched
 }
 
 const Input = props => {
-
     const inputType = props.type || "text"
     const cls = [classes.Input]
     const htmlFor = `${inputType}-${Math.random()}`
