@@ -3,12 +3,12 @@ import classes from './QuizCreator.module.scss'
 import Button from '../../components/UI/Button/Button'
 import Input from '../../components/UI/Input/Input'
 import Select from '../../components/UI/Select/Select'
-import {createControl} from '../../form/formFramework'
+import {createControl, validate, validateForm} from '../../form/formFramework'
 import Auxiliary from '../../hoc/Auxiliary/Auxiliary'
 
 function createOptionControl(number) {
     return createControl({
-        label: `Варіант ${number }`,
+        label: `Варіант ${number}`,
         errorMessage: 'Значення не може бути пустим',
         id: number
     }, {required: true})
@@ -18,7 +18,7 @@ function createFormControls() {
     return {
         question: createControl({
             label: 'Введіть питяння',
-            errorMessage: 'Питання не може бути пустим',
+            errorMessage: 'Питання не може бути пустим'
         }, {required: true}),
         option1: createOptionControl(1),
         option2: createOptionControl(2),
@@ -31,16 +31,17 @@ export default class QuizCreator extends Component {
 
     state = {
         quiz: [],
+        isFormValid: false,
         rightAnswerId: 1,
-        formControl: createFormControls()
+        formControls: createFormControls()
     }
 
     submitHandler = event => {
         event.preventDefault()
     }
 
-    addQuestionHandler = () => {
-
+    addQuestionHandler = event => {
+        event.preventDefault()
     }
 
     createQuizHandler = () => {
@@ -48,12 +49,24 @@ export default class QuizCreator extends Component {
     }
 
     changeHandler = (value, controlName) => {
+        const formControls = { ...this.state.formControls }
+        const control = { ...formControls[controlName] }
 
+        control.touched = true
+        control.value = value
+        control.valid = validate(control.value, control.validation)
+
+        formControls[controlName] = control
+
+        this.setState({
+            formControls,
+            isFormValid: validateForm(formControls)
+        })
     }
 
     renderControls() {
-        return Object.keys(this.state.formControl).map((controlName, index) => {
-            const control = this.state.formControl[controlName]
+        return Object.keys(this.state.formControls).map((controlName, index) => {
+            const control = this.state.formControls[controlName]
 
             return (
                 <Auxiliary key={controlName + index}>
@@ -61,7 +74,7 @@ export default class QuizCreator extends Component {
                         label={control.label}
                         value={control.value}
                         valid={control.valid}
-                        shouldValidate={!!control.shouldValidate}
+                        shouldValidate={!!control.validation}
                         touched={control.touched}
                         errorMessage={control.errorMessage}
                         onChange={event => this.changeHandler(event.target.value, controlName)}
@@ -104,12 +117,14 @@ export default class QuizCreator extends Component {
                         <Button
                             type="primary"
                             onClick={this.addQuestionHandler}
+                            disabled={!this.state.isFormValid}
                         >
                             Добавити запитання
                         </Button>
                         <Button
                             type="succesa"
                             onClick={this.createQuizHandler}
+                            disabled={this.state.quiz.length === 0}
                         >
                             Створити тест
                         </Button>
