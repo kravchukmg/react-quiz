@@ -21,7 +21,7 @@ function createFormControls() {
     return {
         question: createControl({
             label: 'Введіть питяння',
-            errorMessage: 'Питання не може бути пустим'
+            errorMessage: 'Поле не може бути пустим'
         }, {required: true}),
         option1: createOptionControl(1),
         option2: createOptionControl(2),
